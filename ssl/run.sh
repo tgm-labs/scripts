@@ -78,7 +78,7 @@ remove_nginx_certbot() {
 # Reload configuration files
 reload_configuration() {
     local config=NginxConfig
-    $config_new "$config" "https://your-remote-config-link"
+    $config_new "$config" "https://raw.githubusercontent.com/tgm-labs/scripts/main/ssl/config.json"
 
     local email=$($config_get_email "$config")
     local domains=$($config_get_domains "$config")
