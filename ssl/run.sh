@@ -96,7 +96,7 @@ location / {
         # Check if the SSL certificate exists
         if [ ! -f "$SSL_CERT_PATH" ]; then
             echo "SSL certificate does not exist for $domain, obtaining certificate..."
-            if sudo certbot --nginx -d "$domain" --non-interactive --agree-tos --email "$email"; then
+            if sudo certbot certonly --nginx -d "$domain" --non-interactive --agree-tos --email "$email"; then
                 echo "Successfully obtained SSL certificate."
             else
                 echo "Failed to obtain SSL certificate for $domain, please check the error log."
