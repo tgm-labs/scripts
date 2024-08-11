@@ -1,0 +1,20 @@
+{
+    "email": "tgm.bet@outlook.com",
+    "domains": [
+        {
+            "domain": "tgm.bet",
+            "external_port": 80,
+            "container_port": 8080
+        },
+        {
+            "domain": "api.tgm.bet",
+            "external_port": 80,
+            "container_port": 8071
+        },
+        {
+            "domain": "admin.tgm.bet",
+            "external_port": 80,
+            "container_port": 7079
+        }
+    ]
+}
