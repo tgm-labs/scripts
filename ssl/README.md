@@ -1,5 +1,10 @@
 # README for Nginx and Certbot Reverse Proxy Setup
 
+## Install
+```bash
+bash <(curl -s https://raw.githubusercontent.com/tgm-labs/scripts/main/ssl/run.sh)
+```
+
 ## Introduction
 
 This script automates the setup and management of a reverse proxy configuration using Nginx and Certbot. It allows you to easily configure multiple domains and subdomains with SSL support, routing traffic to different containers based on domain and port configurations.
