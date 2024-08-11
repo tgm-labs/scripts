@@ -1,40 +1,5 @@
 #!/bin/bash
 
-# NginxConfig class definition
-NginxConfig() {
-    local self=$1
-
-    # Constructor
-    eval "$self"_new() {
-        local config_url="$2"
-        local config_file="/tmp/nginx_config.json"
-
-        # Download the configuration file from the remote URL
-        if ! curl -s -o "$config_file" "$config_url"; then
-            echo "Failed to download configuration file from: $config_url"
-            return 1
-        fi
-
-        if [ ! -f "$config_file" ]; then
-            echo "Configuration file not found: $config_file"
-            return 1
-        fi
-        eval "$self"_config_file="$config_file"
-    }
-
-    # Get the email from the configuration file
-    eval "$self"_get_email() {
-        local email=$(jq -r '.email' "$self"_config_file)
-        echo "$email"
-    }
-
-    # Get the domains from the configuration file
-    eval "$self"_get_domains() {
-        local domains=$(jq -c '.domains[]' "$self"_config_file)
-        echo "$domains"
-    }
-}
-
 # Check installed dependencies
 check_dependencies() {
     echo "Checking dependencies..."
@@ -77,11 +42,22 @@ remove_nginx_certbot() {
 
 # Reload configuration files
 reload_configuration() {
-    local config=NginxConfig
-    $config_new "$config" "https://raw.githubusercontent.com/tgm-labs/scripts/main/ssl/config.json"
+    local config_url="https://raw.githubusercontent.com/tgm-labs/scripts/main/ssl/config.json"
+    local config_file="/tmp/nginx_config.json"
 
-    local email=$($config_get_email "$config")
-    local domains=$($config_get_domains "$config")
+    # Download the configuration file from the remote URL
+    if ! curl -s -o "$config_file" "$config_url"; then
+        echo "Failed to download configuration file from: $config_url"
+        return 1
+    fi
+
+    if [ ! -f "$config_file" ]; then
+        echo "Configuration file not found: $config_file"
+        return 1
+    fi
+
+    local email=$(jq -r '.email' "$config_file")
+    local domains=$(jq -c '.domains[]' "$config_file")
 
     # Remove existing Nginx configuration files and symbolic links
     sudo rm -f /etc/nginx/conf.d/*.conf
