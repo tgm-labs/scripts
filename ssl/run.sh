@@ -69,7 +69,7 @@ reload_configuration() {
         local external_port=$(echo "$domain_data" | jq -r '.external_port')
         local container_port=$(echo "$domain_data" | jq -r '.container_port')
 
-                # Configure Nginx
+        # Configure Nginx
         NGINX_CONF="/etc/nginx/conf.d/$domain-$container_port.conf"
 
         echo "Creating Nginx configuration file: $NGINX_CONF"
@@ -138,6 +138,29 @@ location / {
     done <<< "$domains"
 }
 
+# Enable or disable automatic SSL renewal
+toggle_auto_renew() {
+    if [ -f /etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh ]; then
+        echo "Disabling automatic SSL certificate renewal..."
+        sudo rm /etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh
+        echo "Automatic SSL certificate renewal disabled."
+    else
+        echo "Enabling automatic SSL certificate renewal..."
+        echo "#!/bin/bash
+sudo systemctl reload nginx" | sudo tee /etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh > /dev/null
+        sudo chmod +x /etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh
+        echo "Automatic SSL certificate renewal enabled."
+    fi
+}
+
+# Stop Nginx and Certbot services
+stop_services() {
+    echo "Stopping Nginx and Certbot services..."
+    sudo systemctl stop nginx
+    sudo systemctl stop certbot.timer
+    echo "Nginx and Certbot services stopped."
+}
+
 # Main menu
 while true; do
     echo "Please choose an action:"
@@ -149,6 +172,15 @@ while true; do
     else
         echo "1) Reload Configuration Files"
         echo "2) Remove Certbot and Nginx"
+        
+        # Check if automatic SSL renewal is enabled and set the menu text accordingly
+        if [ -f /etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh ]; then
+            echo "3) Disable Automatic SSL Renewal"
+        else
+            echo "3) Enable Automatic SSL Renewal"
+        fi
+
+        echo "4) Stop Nginx and Certbot Services"
     fi
 
     echo "9) Exit"
@@ -165,6 +197,12 @@ while true; do
             ;;
         2)
             remove_nginx_certbot
+            ;;
+        3)
+            toggle_auto_renew
+            ;;
+        4)
+            stop_services
             ;;
         9)
             echo "Exiting program."
