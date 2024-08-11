@@ -1,10 +1,5 @@
 # README for Nginx and Certbot Reverse Proxy Setup
 
-## Install
-```bash
-bash <(curl -s https://raw.githubusercontent.com/tgm-labs/scripts/main/ssl/run.sh)
-```
-
 ## Introduction
 
 This script automates the setup and management of a reverse proxy configuration using Nginx and Certbot. It allows you to easily configure multiple domains and subdomains with SSL support, routing traffic to different containers based on domain and port configurations.
@@ -51,43 +46,27 @@ The configuration file is a JSON file that specifies the email for SSL certifica
 
 ## Usage Instructions
 
-### 1. Clone the Repository
-
-Clone the repository containing the script:
-
+### 1. Install
 ```bash
-git clone https://your-repo-url
-cd your-repo-directory
+bash <(curl -s https://raw.githubusercontent.com/tgm-labs/scripts/main/ssl/run.sh)
 ```
 
-### 2. Set Up the Configuration File
+### 2. Menu Options
+1. **Install Nginx and Certbot**: If Nginx or Certbot are not yet installed, this option will be used to install these two packages.
+   - **Nginx** is a high-performance HTTP and reverse proxy server.
+   - **Certbot** is an automated tool for obtaining free SSL/TLS certificates from Let's Encrypt and automatically configuring the web server to use these certificates.
+2. **Reload Configuration Files**: Reloads Nginx configuration files without restarting the entire service. This is typically used to apply configuration changes without interrupting current connections.
+3. **Remove Certbot and Nginx**: Uninstalls Certbot and Nginx, removing related configuration files and services.
+4. **Disable Automatic SSL Renewal**: If automatic SSL certificate renewal is enabled, this option provides the ability to disable that feature. This usually involves removing or modifying the script or hooks used to automatically update the certificate before it expires.
+5. **Enable Automatic SSL Renewal**: If automatic SSL certificate renewal is not yet enabled, this option provides the ability to enable that feature. This sets up a hook script to reload the Nginx configuration after the certificate renewal, making the new certificate effective.
+6. **Stop Nginx and Certbot Services**: Stops running Nginx and Certbot services.
 
-Create or edit your configuration file as shown above. If using a remote configuration file, update the script to point to your file’s URL.
-
-### 3. Run the Script
-
-The script provides a menu for various operations. Run the script as follows:
-
-```bash
-./nginx_certbot_setup.sh
-```
-
-### 4. Menu Options
-
-The script will display a menu with options depending on whether Nginx and Certbot are already installed.
-
-- **Install Nginx and Certbot**: Installs the necessary software if not already installed.
-- **Add Reverse Proxy**: Configures reverse proxy settings for the domains listed in your configuration file.
-- **Remove Reverse Proxy**: Removes a reverse proxy configuration.
-- **Remove Certbot and Nginx**: Completely removes Nginx and Certbot from your system.
-- **Manage SSL Auto-Renewal**: Enables or disables automatic SSL renewal.
-
-### 5. Important Notes
+### 3. Important Notes
 
 - **Port Conflicts**: If multiple domains share the same external port, they must be distinct domains (e.g., `tgm.bet` and `api.tgm.bet`). If the domain is the same, ensure that each uses a unique external port (e.g., `80` and `7080` for `tgm.bet`).
 - **SSL Certificates**: The script automatically obtains and renews SSL certificates using the email provided in the configuration file.
 
-### 6. Example Scenario
+### 4. Example Scenario
 
 For the provided configuration, the script will:
 
