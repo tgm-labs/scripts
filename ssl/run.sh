@@ -61,7 +61,7 @@ reload_configuration() {
 
     # Remove existing Nginx configuration files and symbolic links
     sudo rm -f /etc/nginx/conf.d/*.conf
-    sudo unlink /etc/nginx/sites-enabled/*
+    sudo rm -f /etc/nginx/sites-enabled/*
 
     # Loop through the domains and add each reverse proxy configuration
     while IFS= read -r domain_data; do
