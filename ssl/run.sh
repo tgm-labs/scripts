@@ -69,24 +69,7 @@ reload_configuration() {
         local external_port=$(echo "$domain_data" | jq -r '.external_port')
         local container_port=$(echo "$domain_data" | jq -r '.container_port')
 
-        # SSL certificate path
-        SSL_CERT_PATH="/etc/letsencrypt/live/$domain/fullchain.pem"
-        SSL_KEY_PATH="/etc/letsencrypt/live/$domain/privkey.pem"
-
-        # Check if the SSL certificate exists
-        if [ ! -f "$SSL_CERT_PATH" ]; then
-            echo "SSL certificate does not exist for $domain, obtaining certificate..."
-            if sudo certbot --nginx -d "$domain" --non-interactive --agree-tos --email "$email"; then
-                echo "Successfully obtained SSL certificate."
-            else
-                echo "Failed to obtain SSL certificate for $domain, please check the error log."
-                continue
-            fi
-        else
-            echo "SSL certificate already exists for $domain."
-        fi
-
-        # Configure Nginx
+                # Configure Nginx
         NGINX_CONF="/etc/nginx/conf.d/$domain-$container_port.conf"
 
         echo "Creating Nginx configuration file: $NGINX_CONF"
@@ -104,6 +87,24 @@ location / {
     proxy_set_header X-Forwarded-Proto \$scheme;
 }
 }" | sudo tee "$NGINX_CONF" > /dev/null
+
+
+        # SSL certificate path
+        SSL_CERT_PATH="/etc/letsencrypt/live/$domain/fullchain.pem"
+        SSL_KEY_PATH="/etc/letsencrypt/live/$domain/privkey.pem"
+
+        # Check if the SSL certificate exists
+        if [ ! -f "$SSL_CERT_PATH" ]; then
+            echo "SSL certificate does not exist for $domain, obtaining certificate..."
+            if sudo certbot --nginx -d "$domain" --non-interactive --agree-tos --email "$email"; then
+                echo "Successfully obtained SSL certificate."
+            else
+                echo "Failed to obtain SSL certificate for $domain, please check the error log."
+                continue
+            fi
+        else
+            echo "SSL certificate already exists for $domain."
+        fi
 
         echo "server {
 listen 443 ssl;
