@@ -43,7 +43,7 @@ remove_nginx_certbot() {
 # Reload configuration files
 reload_configuration() {
     local config_url="https://raw.githubusercontent.com/tgm-labs/scripts/main/ssl/config.json"
-    local config_file="/tmp/nginx_config.json"
+    local config_file="nginx_config.json"
 
     # Download the configuration file from the remote URL
     if ! curl -s -o "$config_file" "$config_url"; then
