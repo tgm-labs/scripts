@@ -168,8 +168,8 @@ update_cloudflare_ips() {
     echo "Updating Cloudflare IP addresses..."
 
     # Download Cloudflare IPv4 and IPv6 addresses
-    curl -s https://www.cloudflare.com/ips-v4/ > /etc/nginx/cloudflare_ips_ipv4.conf
-    curl -s https://www.cloudflare.com/ips-v6/ > /etc/nginx/cloudflare_ips_ipv6.conf
+    sudo curl -s https://www.cloudflare.com/ips-v4/ -o /etc/nginx/cloudflare_ips_ipv4.conf
+    sudo curl -s https://www.cloudflare.com/ips-v6/ -o /etc/nginx/cloudflare_ips_ipv6.conf
 
     # Combine IPv4 and IPv6 addresses into a single file
     echo "# Cloudflare IPv4" | sudo tee /etc/nginx/cloudflare_ips.conf > /dev/null
@@ -177,7 +177,13 @@ update_cloudflare_ips() {
     echo "# Cloudflare IPv6" | sudo tee -a /etc/nginx/cloudflare_ips.conf > /dev/null
     sudo cat /etc/nginx/cloudflare_ips_ipv6.conf | sudo tee -a /etc/nginx/cloudflare_ips.conf > /dev/null
 
-    echo "Cloudflare IP addresses updated."
+    # Reload Nginx to apply the changes
+    if sudo nginx -t; then
+        sudo systemctl reload nginx
+        echo "Cloudflare IP addresses updated and Nginx reloaded."
+    else
+        echo "Nginx configuration error after updating Cloudflare IPs, please check the configuration file."
+    fi
 }
 
 # Main menu
