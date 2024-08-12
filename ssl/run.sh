@@ -163,29 +163,6 @@ stop_services() {
     echo "Nginx and Certbot services stopped."
 }
 
-# Update Cloudflare IP addresses
-update_cloudflare_ips() {
-    echo "Updating Cloudflare IP addresses..."
-
-    # Download Cloudflare IPv4 and IPv6 addresses
-    sudo curl -s https://www.cloudflare.com/ips-v4/ -o /etc/nginx/cloudflare_ips_ipv4.conf
-    sudo curl -s https://www.cloudflare.com/ips-v6/ -o /etc/nginx/cloudflare_ips_ipv6.conf
-
-    # Combine IPv4 and IPv6 addresses into a single file
-    echo "# Cloudflare IPv4" | sudo tee /etc/nginx/cloudflare_ips.conf > /dev/null
-    sudo cat /etc/nginx/cloudflare_ips_ipv4.conf | sudo tee -a /etc/nginx/cloudflare_ips.conf > /dev/null
-    echo "# Cloudflare IPv6" | sudo tee -a /etc/nginx/cloudflare_ips.conf > /dev/null
-    sudo cat /etc/nginx/cloudflare_ips_ipv6.conf | sudo tee -a /etc/nginx/cloudflare_ips.conf > /dev/null
-
-    # Reload Nginx to apply the changes
-    if sudo nginx -t; then
-        sudo systemctl reload nginx
-        echo "Cloudflare IP addresses updated and Nginx reloaded."
-    else
-        echo "Nginx configuration error after updating Cloudflare IPs, please check the configuration file."
-    fi
-}
-
 # Main menu
 while true; do
     echo "Please choose an action:"
@@ -206,7 +183,6 @@ while true; do
         fi
 
         echo "4) Stop Nginx and Certbot Services"
-        echo "5) Update Cloudflare IPs"
     fi
 
     echo "9) Exit"
@@ -229,9 +205,6 @@ while true; do
             ;;
         4)
             stop_services
-            ;;
-        5)
-            update_cloudflare_ips
             ;;
         9)
             echo "Exiting program."

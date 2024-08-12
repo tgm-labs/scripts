@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This script automates the setup and management of a reverse proxy configuration using Nginx and Certbot. It simplifies configuring multiple domains and subdomains with SSL support, routing traffic to different containers based on domain and port configurations. Additionally, it includes functionality to update Cloudflare IP addresses for enhanced security.
+This script automates the setup and management of a reverse proxy configuration using Nginx and Certbot. It simplifies configuring multiple domains and subdomains with SSL support, routing traffic to different containers based on domain and port configurations.
 
 ## Features
 
@@ -11,7 +11,6 @@ This script automates the setup and management of a reverse proxy configuration 
 - **SSL certificate management** using Let's Encrypt via Certbot.
 - **Automatic SSL renewal** management.
 - **Support for dynamic port and domain configurations**.
-- **Cloudflare IP address updates** to secure your server.
 
 ## Configuration File
 
@@ -68,15 +67,11 @@ bash <(curl -s https://raw.githubusercontent.com/tgm-labs/scripts/main/ssl/run.s
 
 6. **Stop Nginx and Certbot Services**: Stops the Nginx and Certbot services.
 
-7. **Update Cloudflare IPs**: Updates Cloudflare IP addresses used to allow traffic in the Nginx configuration. This enhances security by restricting access to only Cloudflare's IPs.
-
 ### 3. Important Notes
 
 - **Port Conflicts**: Ensure that each domain has a unique external port if using the same domain or subdomain with multiple configurations. For example, `tgm.bet` can use ports `80` and `7080` for different services, while `api.tgm.bet` can also use port `80` since it is a different subdomain.
 
 - **SSL Certificates**: The script automatically obtains and renews SSL certificates using the email provided in the configuration file.
-
-- **Cloudflare IP Addresses**: The script updates the list of Cloudflare IP addresses used to restrict access to your server, ensuring that only traffic from Cloudflare is allowed.
 
 ### 4. Example Scenario
 
@@ -93,5 +88,3 @@ In this scenario, `tgm.bet` uses two different external ports (`80` and `7080`) 
 - **Nginx Configuration Errors**: If Nginx fails to reload, check the error messages and verify configuration syntax and port allocations.
 
 - **SSL Certificate Issues**: If Certbot fails to obtain or renew certificates, ensure your domain's DNS settings are correct and that the domain points to your server's IP address.
-
-- **Cloudflare IP Updates**: If you encounter issues related to IP address restrictions, verify that the Cloudflare IP addresses have been correctly updated in the Nginx configuration.
