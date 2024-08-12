@@ -76,16 +76,13 @@ reload_configuration() {
 
         # Create the configuration file
         echo "server {
-listen $external_port;
-server_name $domain;
-return 301 https://\$host\$request_uri;
-location / {
-    proxy_pass http://localhost:$container_port;
-    proxy_set_header Host \$host;
-    proxy_set_header X-Real-IP \$remote_addr;
-    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto \$scheme;
-}
+    listen $external_port;
+    server_name $domain;
+    # Allow Cloudflare's IP addresses
+    include /etc/nginx/cloudflare_ips.conf;
+    # Deny all other IP addresses
+    deny all;
+    return 301 https://\$host\$request_uri;
 }" | sudo tee "$NGINX_CONF" > /dev/null
 
 
@@ -107,23 +104,28 @@ location / {
         fi
 
         echo "server {
-listen 443 ssl;
-server_name $domain;
+    listen 443 ssl;
+    server_name $domain;
 
-ssl_certificate $SSL_CERT_PATH;
-ssl_certificate_key $SSL_KEY_PATH;
+    ssl_certificate $SSL_CERT_PATH;
+    ssl_certificate_key $SSL_KEY_PATH;
 
-ssl_protocols TLSv1.2 TLSv1.3;
-ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
-ssl_prefer_server_ciphers on;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
+    ssl_prefer_server_ciphers on;
 
-location / {
-    proxy_pass http://localhost:$container_port;
-    proxy_set_header Host \$host;
-    proxy_set_header X-Real-IP \$remote_addr;
-    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto \$scheme;
-}
+    # Allow Cloudflare's IP addresses
+    include /etc/nginx/cloudflare_ips.conf;
+    # Deny all other IP addresses
+    deny all;
+
+    location / {
+        proxy_pass http://localhost:$container_port;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
 }" | sudo tee -a "$NGINX_CONF" > /dev/null
 
         # Activate the configuration and reload Nginx
@@ -161,6 +163,23 @@ stop_services() {
     echo "Nginx and Certbot services stopped."
 }
 
+# Update Cloudflare IP addresses
+update_cloudflare_ips() {
+    echo "Updating Cloudflare IP addresses..."
+
+    # Download Cloudflare IPv4 and IPv6 addresses
+    curl -s https://www.cloudflare.com/ips-v4/ > /etc/nginx/cloudflare_ips_ipv4.conf
+    curl -s https://www.cloudflare.com/ips-v6/ > /etc/nginx/cloudflare_ips_ipv6.conf
+
+    # Combine IPv4 and IPv6 addresses into a single file
+    echo "# Cloudflare IPv4" | sudo tee /etc/nginx/cloudflare_ips.conf > /dev/null
+    sudo cat /etc/nginx/cloudflare_ips_ipv4.conf | sudo tee -a /etc/nginx/cloudflare_ips.conf > /dev/null
+    echo "# Cloudflare IPv6" | sudo tee -a /etc/nginx/cloudflare_ips.conf > /dev/null
+    sudo cat /etc/nginx/cloudflare_ips_ipv6.conf | sudo tee -a /etc/nginx/cloudflare_ips.conf > /dev/null
+
+    echo "Cloudflare IP addresses updated."
+}
+
 # Main menu
 while true; do
     echo "Please choose an action:"
@@ -181,6 +200,7 @@ while true; do
         fi
 
         echo "4) Stop Nginx and Certbot Services"
+        echo "5) Update Cloudflare IPs"
     fi
 
     echo "9) Exit"
@@ -203,6 +223,9 @@ while true; do
             ;;
         4)
             stop_services
+            ;;
+        5)
+            update_cloudflare_ips
             ;;
         9)
             echo "Exiting program."
