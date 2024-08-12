@@ -79,7 +79,7 @@ reload_configuration() {
     listen $external_port;
     server_name $domain;
     # Allow Cloudflare's IP addresses
-    include /etc/nginx/cloudflare_ips.conf;
+    include /etc/cloudflare_ips/cloudflare_ips.conf;
     # Deny all other IP addresses
     deny all;
     return 301 https://\$host\$request_uri;
@@ -115,7 +115,7 @@ reload_configuration() {
     ssl_prefer_server_ciphers on;
 
     # Allow Cloudflare's IP addresses
-    include /etc/nginx/cloudflare_ips.conf;
+    include /etc/cloudflare_ips/cloudflare_ips.conf;
     # Deny all other IP addresses
     deny all;
 
