@@ -78,10 +78,6 @@ reload_configuration() {
         echo "server {
                 listen $external_port;
                 server_name $domain;
-                # Allow Cloudflare's IP addresses
-                include /etc/cloudflare_ips/cloudflare_ips.conf;
-                # Deny all other IP addresses
-                deny all;
                 return 301 https://\$host\$request_uri;
             }" | sudo tee "$NGINX_CONF" >/dev/null
 
@@ -112,6 +108,7 @@ reload_configuration() {
                 ssl_protocols TLSv1.2 TLSv1.3;
                 ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
                 ssl_prefer_server_ciphers on;
+                server_tokens off;
 
                 # Allow Cloudflare's IP addresses
                 include /etc/cloudflare_ips/cloudflare_ips.conf;
@@ -128,7 +125,15 @@ reload_configuration() {
                 gzip_http_version 1.1;
                 gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
 
+                add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload";
+                add_header X-XSS-Protection "1; mode=block";
+                add_header X-Frame-Options DENY;
+                add_header X-Content-Type-Options nosniff;
+                add_header Referrer-Policy "strict-origin-when-cross-origin";
+                limit_conn perip 5;
+
                 location / {
+                    limit_req zone=one burst=10 nodelay;
                     proxy_pass http://localhost:$container_port;
                     proxy_set_header Host \$host;
                     proxy_set_header X-Real-IP \$remote_addr;
