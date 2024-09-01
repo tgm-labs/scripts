@@ -117,7 +117,7 @@ reload_configuration() {
 
                 # Enable gzip compression globally within this server block
                 gzip on;
-                gzip_disable "msie6";
+                gzip_disable \"msie6\";
                 gzip_vary on;
                 gzip_proxied any;
                 gzip_comp_level 6;
@@ -125,8 +125,8 @@ reload_configuration() {
                 gzip_http_version 1.1;
                 gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
 
-                add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload";
-                add_header X-XSS-Protection "1; mode=block";
+                add_header Strict-Transport-Security \"max-age=31536000; includeSubDomains; preload\";
+                add_header X-XSS-Protection \"1; mode=block\";
                 add_header X-Frame-Options DENY;
                 add_header X-Content-Type-Options nosniff;
                 add_header Referrer-Policy "strict-origin-when-cross-origin";
