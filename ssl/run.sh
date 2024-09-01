@@ -131,7 +131,7 @@ reload_configuration() {
                 add_header X-Content-Type-Options nosniff;
                 add_header Referrer-Policy "strict-origin-when-cross-origin";
                 limit_conn perip 5;
-
+                
                 location / {
                     limit_req zone=one burst=10 nodelay;
                     proxy_pass http://localhost:$container_port;
