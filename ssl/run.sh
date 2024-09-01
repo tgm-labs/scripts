@@ -42,6 +42,7 @@ remove_nginx_certbot() {
 
 # Reload configuration files
 reload_configuration() {
+    sudo systemctl stop nginx
     local config_url="https://raw.githubusercontent.com/tgm-labs/scripts/main/ssl/config.json"
     local config_file="nginx_config.json"
 
@@ -55,7 +56,7 @@ reload_configuration() {
         echo "Configuration file not found: $config_file"
         return 1
     fi
-
+    
     local email=$(jq -r '.email' "$config_file")
     local domains=$(jq -c '.domains[]' "$config_file")
 
@@ -135,18 +136,12 @@ reload_configuration() {
                     proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
                     proxy_set_header X-Forwarded-Proto \$scheme;
                 }
-
-                # Static files
-                location ~* \.(jpg|jpeg|gif|png|css|js|ico|xml)$ {
-                    expires max;
-                    log_not_found off;
-                }
             }" | sudo tee -a "$NGINX_CONF" >/dev/null
 
         # Activate the configuration and reload Nginx
         sudo ln -sf "$NGINX_CONF" /etc/nginx/sites-enabled/
         if sudo nginx -t; then
-            sudo systemctl reload nginx
+            sudo systemctl start nginx
             echo "Nginx configuration succeeded and has been reloaded."
         else
             echo "Nginx configuration error, please check the configuration file."
