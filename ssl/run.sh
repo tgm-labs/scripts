@@ -130,6 +130,9 @@ reload_configuration() {
                 add_header X-Frame-Options DENY;
                 add_header X-Content-Type-Options nosniff;
                 add_header Referrer-Policy "strict-origin-when-cross-origin";
+
+                # Define shared memory for limiting connections
+                limit_conn_zone $binary_remote_addr zone=perip:10m;
                 limit_conn perip 5;
                 
                 location / {
