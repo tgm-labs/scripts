@@ -146,10 +146,9 @@ reload_configuration() {
         # Activate the configuration and reload Nginx
         sudo ln -sf "$NGINX_CONF" /etc/nginx/sites-enabled/
         if sudo nginx -t; then
-            sudo systemctl restart nginx
-            echo "Nginx configuration succeeded and has been reloaded."
+            sudo systemctl reload nginx
         else
-            echo "Nginx configuration error, please check the configuration file."
+            sudo systemctl restart nginx
             continue
         fi
     done <<<"$domains"
