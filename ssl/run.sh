@@ -132,7 +132,6 @@ reload_configuration() {
                 add_header Referrer-Policy "strict-origin-when-cross-origin";
                 
                 location / {
-                    limit_req zone=one burst=10 nodelay;
                     proxy_pass http://localhost:$container_port;
                     proxy_set_header Host \$host;
                     proxy_set_header X-Real-IP \$remote_addr;
